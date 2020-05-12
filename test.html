@@ -1,0 +1,251 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Github热门项目</title>
+ 
+    <!-- <link href="http://libs.baidu.com/fontawesome/4.0.3/css/font-awesome.min.css" rel="stylesheet">  -->
+    <link rel="stylesheet" href="./css/font-awesome.min.css">
+  <style>
+        body{
+            background:whitesmoke;
+          
+        }
+        #app{
+            min-width: 1200px;
+        }
+        .header{
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+            height: 80px;
+            line-height: 80px;
+            font-size:22px;
+            font-weight: bolder;
+        }
+        .header .header-item{
+            margin: 20px;
+            cursor: pointer;
+          
+        }
+        .header .header-item:hover{
+            color:#e2e1e4;
+        }
+      .active{
+          color:#c02c38;
+      }
+        .content{
+           margin: 10px 0px;
+           display: flex;
+           flex-direction: row;
+           justify-content: space-around;
+           flex-wrap: wrap;
+          
+     
+        }
+        .content .content-item{
+            height:450px;
+            width:300px; 
+            background-color: #ccc;
+            margin:10px;
+         
+        }
+        .content-item .content-name{
+            font-size: 24px;
+            text-align: center;
+            margin-top: 20px;
+           
+            
+        }
+        .content-item .content-name a{
+           text-decoration: none;
+           color:#c02c38;
+        }
+        .content .content-item .content-num{
+          color: black;
+          font-size: 25px;
+          text-align: center;
+          padding:20px;
+        }
+        .content-img{
+            text-align: center;
+        }
+         .content-item .content-desc {
+            margin:20px 10px;
+            width: 200px;
+        }
+
+         .content-item .content-desc ul{   
+            list-style:none;
+            
+           
+        } 
+
+         .content-desc ul li{
+            line-height: 30px;
+            width:300px;
+        }
+        ul li a{
+         text-decoration: none;
+         color:#f1f0ed;
+        }
+     i{
+         font-size: 30px!important;
+         display: block;
+         width:30px;
+         
+     }
+    </style>
+</head>
+<body>
+    <div id = 'app'></div>
+    <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+    <!-- <script src="https://example.com/fontawesome-free-solid.js"></script> -->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type = 'text/babel'>
+         class Header  extends React.Component{
+            constructor(props){
+                super(props),
+                this.state = {
+                    tabs:[
+                    {name:'All'},
+                    {name:'JavaScript'},
+                    {name:'Ruby'},
+                    {name:'Java'},
+                    {name:'CSS'},
+                    {name:'Python'}  
+                    ],
+                    currentIndex:0,
+                 
+                }
+            }
+
+             clickIndex(index){
+                 this.setState({
+                     currentIndex:index,
+                 })
+             }
+                render(){
+                    const {tabs} = this.state
+                    
+                return(
+                    <div className = 'header'>
+                     {
+                         tabs.map((item,index)=>{
+                           return  (<div className ={`header-item ${index===this.state.currentIndex?"active":null}`} key = {item.name} onClick = {()=>{this.props.handleClick(item.name);this.clickIndex(index)}}>{item.name}</div>) 
+                       })
+                     }
+                    
+                    </div>    
+                )
+            }
+
+         }
+
+
+         class Content extends React.Component{
+            constructor(props){
+                super(props)
+                this.state = { 
+                    myDate:[],
+                     Url:[
+                    {name:'All',url:'https://api.github.com/search/repositories?q=stars:%3E1&sort=stars&order=desc&type=Repositories'},
+                    {name:'JavaScript',url:'https://api.github.com/search/repositories?q=stars:%3E1+language:javascript&sort=stars&order=desc&type=Repositories'},
+                    {name:'Ruby',url:'https://api.github.com/search/repositories?q=stars:%3E1+language:ruby&sort=stars&order=desc&type=Repositories'},
+                    {name:'Java',url:'https://api.github.com/search/repositories?q=stars:%3E1+language:java&sort=stars&order=desc&type=Repositories'},
+                    {name:'CSS',url:'https://api.github.com/search/repositories?q=stars:%3E1+language:css&sort=stars&order=desc&type=Repositories'},
+                    {name:'Python',url:'https://api.github.com/search/repositories?q=stars:%3E1+language:python&sort=stars&order=desc&type=Repositories'},
+                   
+                  ],
+                 
+                }
+                this.handleClick = this.handleClick.bind(this)
+    
+            }
+            handleClick = async (e)=>{
+                const {Url} = this.state;
+                var a = Url.find((item)=>{
+                    if(item.name == e)
+                    return true
+                })
+                var b = a.url;
+                const res =  await axios.get(b);
+                this.setState({ 
+                    myDate:res.data.items
+                })
+             
+            } 
+        async componentDidMount(){
+                const res =   await axios.get('https://api.github.com/search/repositories?q=stars:%3E1&sort=stars&order=desc&type=Repositories');
+                this.setState({ 
+                    myDate:res.data.items
+                })
+                
+              console.log('res',res.data.items)
+              
+            }
+        
+             render(){
+                 const list = this.state.myDate.map((item,key)=>{
+                    return  <div className = 'content-item' key = {item.id}>
+                                <div className = "content-num">#{key+1}</div> 
+                                <div className = "content-img"><img src = {item.owner.avatar_url} style = {{width:'150px',height:'150px'}}/></div>
+                                <div className = "content-name"><a href = {item.html_url}>{item.name}</a></div>
+                                <div className = "content-desc">
+                                    <ul>
+                                        <li>
+                                            <i className = "fa fa-user fa-1x" style = {{color:'#fba414',display:'inline-block',marginRight:10,}}></i>
+                                            <a href = {item.owner.html_url}>{item.name}</a>
+                                        </li>
+                                        <li>
+                                            <i  className = "fa fa-star fa-1x" style = {{color:'#fed71a',display:'inline-block',marginRight:10 }}></i>
+                                            <span>{item.stargazers_count}  stars</span>
+                                        </li>
+                                        <li>
+                                            <i  className = "fa fa-code-fork fa-1x" style = {{color:'#0eb0c9',display:'inline-block',marginRight:10 }}></i>
+                                            <span>{item.forks_count} forks</span>
+                                        </li>
+                                        <li>
+                                            <i className = "fa fa-exclamation-triangle  fa-1x" style = {{color:'#ab372f',display:'inline-block',marginRight:10 }}></i>
+                                            <span>{item.open_issues_count}  open_issues</span>
+                                        </li>
+                                     </ul>   
+                                </div>   
+                            </div>
+                 })
+
+
+                 return(
+                     <div>
+                        <Header handleClick = {this.handleClick} />
+                        <div className = "content">
+                          {list}
+                        </div>  
+                     </div>
+                     
+                 )
+             }
+         }
+       
+         class Combination extends React.Component{
+             render(){
+                 return(
+                     <div >
+                      
+                        <Content/>
+                     </div>
+                 )
+             }
+         }
+
+
+                ReactDOM.render(
+                        <Combination/>,
+                        document.getElementById("app")
+                );
+
+    </script>
+</body>
+</html>
